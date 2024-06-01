@@ -1,0 +1,562 @@
+#
+# The SDE is riddled with inconsistencies and weird mappings. For example:
+#
+# - Some YAML files have an indent of 2, others of 4.
+# - Most of the time, XXXNameID is mapped to "name". But not always.
+# - Some values are only written when they are non-zero/false/one.
+# - Numbers with decimals are mostly human written (which can be seen as
+#   they do not have an exact floating representation), but others are
+#   (like for example corporationTrades).
+#
+# This mapper sets out to fix these inconsistencies and weird mappings.
+# Additionally, it ensures no fields are exported unless explicitly mentioned
+# here, to prevent accidental changing the SDE format.
+#
+
+agents:
+  json: npccharacters.json
+  columns:
+    agentTypeID:
+      json: agent.agentType
+      condition: if-set
+    corporationID:
+    divisionID:
+      json: agent.agentDivisionID
+    isLocator:
+      json: agent.agentLocateCharacter
+      type: bool
+    level:
+      json: agent.agentLevel
+    locationID:
+      json: stationID
+
+agentsInSpace:
+  json: agentsinspace.json
+  columns:
+    dungeonID:
+    solarSystemID:
+    spawnPointID:
+    typeID:
+
+ancestries:
+  json: ancestries.json
+  columns:
+    bloodlineID:
+    charisma:
+    descriptionID:
+    iconID:
+    intelligence:
+    memory:
+    nameID:
+    perception:
+    shortDescription:
+    willpower:
+
+bloodlines:
+  json: bloodlines.json
+  columns:
+    bloodlineID:
+    charisma:
+    corporationID:
+    descriptionID:
+    iconID:
+    intelligence:
+    memory:
+    nameID:
+    perception:
+    raceID:
+    willpower:
+
+blueprints:
+  sqlite: blueprints.static
+  columns:
+    activities:
+      columns:
+        copying:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+        invention:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                probability:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+        manufacturing:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+        reaction:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+        research_material:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+        research_time:
+          columns:
+            materials:
+              columns:
+                quantity:
+                typeID:
+            products:
+              columns:
+                quantity:
+                typeID:
+            skills:
+              columns:
+                level:
+                typeID:
+            time:
+    blueprintTypeID:
+    maxProductionLimit:
+
+categoryIDs:
+  json: categories.json
+  options:
+    has-ko: False
+  columns:
+    name:
+      json: categoryNameID
+    iconID:
+    published:
+      type: bool
+
+contrabandTypes:
+  json: contrabandtypes.json
+  columns:
+    factions:
+      type: number-dict
+      columns:
+        attackMinSec:
+        confiscateMinSec:
+        fineByValue:
+        standingLoss:
+
+controlTowerResources:
+  json: controltowerresources.json
+  columns:
+    resources:
+      columns:
+        factionID:
+        minSecurityLevel:
+        purpose:
+        quantity:
+        resourceTypeID:
+
+corporationActivities:
+  json: corporationactivities.json
+  columns:
+    nameID:
+
+dogmaAttributeCategories:
+  json: dogmaattributecategories.json
+  columns:
+    description:
+    name:
+
+dogmaAttributes:
+  json: dogmaattributes.json
+  columns:
+    attributeID:
+    categoryID:
+    chargeRechargeTimeID:
+    dataType:
+    defaultValue:
+    description:
+    displayNameID:
+    displayWhenZero:
+      condition: if-true
+      type: bool
+    highIsGood:
+      type: bool
+    iconID:
+    maxAttributeID:
+    name:
+    published:
+      type: bool
+    stackable:
+      type: bool
+    tooltipDescriptionID:
+    tooltipTitleID:
+    unitID:
+
+dogmaEffects:
+  json: dogmaeffects.json
+  columns:
+    descriptionID:
+    disallowAutoRepeat:
+      type: bool
+    dischargeAttributeID:
+    distribution:
+    durationAttributeID:
+    displayNameID:
+    effectCategory:
+    effectID:
+    effectName:
+    electronicChance:
+      type: bool
+    falloffAttributeID:
+    fittingUsageChanceAttributeID:
+    guid:
+    iconID:
+    isAssistance:
+      type: bool
+    isOffensive:
+      type: bool
+    isWarpSafe:
+      type: bool
+    modifierInfo:
+      columns:
+        domain:
+        effectID:
+        func:
+        groupID:
+        modifiedAttributeID:
+        modifyingAttributeID:
+        operation:
+        skillTypeID:
+    npcActivationChanceAttributeID:
+    npcUsageChanceAttributeID:
+    propulsionChance:
+      type: bool
+    published:
+      type: bool
+    rangeAttributeID:
+    rangeChance:
+      type: bool
+    resistanceAttributeID:
+    sfxName:
+    trackingSpeedAttributeID:
+
+factions:
+  json: factions.json
+  columns:
+    corporationID:
+    descriptionID:
+    iconID:
+    memberRaces:
+    militiaCorporationID:
+    nameID:
+    shortDescriptionID:
+    sizeFactor:
+    solarSystemID:
+    uniqueName:
+      type: bool
+
+graphicIDs:
+  json: graphicids.json
+  columns:
+    description:
+    graphicFile:
+    iconInfo:
+      columns:
+        folder:
+    sofFactionName:
+    sofHullName:
+    sofLayout:
+    sofRaceName:
+
+groupIDs:
+  json: groups.json
+  options:
+    has-ko: False
+  columns:
+    anchorable:
+      type: bool
+    anchored:
+      type: bool
+    categoryID:
+    fittableNonSingleton:
+      type: bool
+    name:
+      json: groupNameID
+    iconID:
+    published:
+      type: bool
+    useBasePrice:
+      type: bool
+
+iconIDs:
+  json: iconids.json
+  columns:
+    iconFile:
+
+marketGroups:
+  json: marketgroups.json
+  columns:
+    descriptionID:
+    hasTypes:
+      type: bool
+    iconID:
+    nameID:
+    parentGroupID:
+
+metaGroups:
+  json: metagroups.json
+  columns:
+    descriptionID:
+    iconID:
+    iconSuffix:
+    nameID:
+
+npcCorporationDivisions:
+  json: npccorporationdivisions.json
+  columns:
+    description:
+    descriptionID:
+    internalName:
+    leaderTypeNameID:
+    nameID:
+
+npcCorporations:
+  json: npccorporations.json
+  columns:
+    allowedMemberRaces:
+    ceoID:
+    corporationTrades:
+      type: number-dict
+      round: false
+    deleted:
+      type: bool
+    descriptionID:
+    divisions:
+      type: number-dict
+      columns:
+        divisionNumber:
+        leaderID:
+        size:
+    enemyID:
+    exchangeRates:
+      type: number-dict
+    extent:
+    factionID:
+    friendID:
+    hasPlayerPersonnelManager:
+      type: bool
+    iconID:
+    initialPrice:
+    investors:
+      type: number-dict
+    lpOfferTables:
+    mainActivityID:
+    memberLimit:
+    minSecurity:
+    minimumJoinStanding:
+    nameID:
+    publicShares:
+    raceID:
+    secondaryActivityID:
+    sendCharTerminationMessage:
+      type: bool
+    shares:
+    size:
+    sizeFactor:
+    solarSystemID:
+    stationID:
+    taxRate:
+    tickerName:
+    uniqueName:
+      type: bool
+    url:
+
+planetSchematics:
+  json: schematics.json
+  columns:
+    cycleTime:
+    nameID:
+    pins:
+    types:
+      type: number-dict
+      columns:
+        isInput:
+          type: bool
+        quantity:
+
+races:
+  json: races.json
+  columns:
+    descriptionID:
+    iconID:
+    nameID:
+    shipTypeID:
+    skills:
+      type: number-dict
+
+researchAgents:
+  json: npccharacters.json
+  columns:
+    skills:
+      condition: if-set
+      columns:
+        typeID:
+
+skinLicenses:
+  sqlite: skinlicenses.static
+  columns:
+    duration:
+    isSingleUse:
+      type: bool
+    licenseTypeID:
+    skinID:
+
+skinMaterials:
+  sqlite: skinmaterials.static
+  columns:
+    displayNameID:
+    materialSetID:
+    skinMaterialID:
+
+skins:
+  sqlite: skins.static
+  columns:
+    allowCCPDevs:
+      type: bool
+    internalName:
+    isStructureSkin:
+      type: bool
+    skinDescription:
+    skinID:
+    skinMaterialID:
+    types:
+    visibleSerenity:
+      type: bool
+    visibleTranquility:
+      type: bool
+
+stationOperations:
+  json: stationoperations.json
+  columns:
+    activityID:
+    border:
+    corridor:
+    descriptionID:
+    fringe:
+    hub:
+    manufacturingFactor:
+    operationNameID:
+    ratio:
+    researchFactor:
+    services:
+    stationTypes:
+      type: number-dict
+
+stationServices:
+  json: stationservices.json
+  columns:
+    descriptionID:
+    serviceNameID:
+
+typeDogma:
+  json: typedogma.json
+  columns:
+    dogmaAttributes:
+      columns:
+        attributeID:
+        value:
+          round: false
+    dogmaEffects:
+      columns:
+        effectID:
+        isDefault:
+          type: bool
+
+typeIDs:
+  json: types.json
+  options:
+    has-ko: False
+  columns:
+    basePrice:
+      condition: if-not-zero
+    capacity:
+      condition: if-not-zero
+    description:
+      json: descriptionID
+      ignore-empty: true
+    factionID:
+    graphicID:
+    groupID:
+    iconID:
+    mass:
+      condition: if-not-zero
+    marketGroupID:
+    masteries:
+    metaGroupID:
+    name:
+      json: typeNameID
+      ignore-empty: true
+    portionSize:
+    published:
+      type: bool
+    raceID:
+    radius:
+      condition: if-not-zero-or-one
+      precision: 8
+    soundID:
+    traits:
+    variationParentTypeID:
+    volume:
+      condition: if-not-zero
+
+typeMaterials:
+  json: typematerials.json
+  columns:
+    materials:
+      columns:
+        materialTypeID:
+        quantity:

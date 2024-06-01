@@ -1,0 +1,200 @@
+name: Create SDE
+
+on:
+  workflow_dispatch:
+    inputs:
+      build-number:
+        description: 'Tranquility - Build number'
+        required: false
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  build-number:
+    name: Get build number
+    runs-on: ubuntu-latest
+
+    outputs:
+      build-number: ${{ steps.get-build-number.outputs.build-number }}
+      new-tag: ${{ steps.check-tag.outputs.new-tag }}
+
+    steps:
+    - name: Get build number
+      id: get-build-number
+      run: |
+        if [ -n "${{ github.event.inputs.build-number }}" ]; then
+          BUILD_NUMBER=${{ github.event.inputs.build-number }}
+        else
+          BUILD_NUMBER=$(curl -s https://binaries.eveonline.com/eveclient_TQ.json | jq -r '.build')
+        fi
+
+        echo "Build number: ${BUILD_NUMBER}"
+        echo "build-number=${BUILD_NUMBER}" >> $GITHUB_OUTPUT
+
+    - name: Check for existing tag
+      id: check-tag
+      run: |
+        TAG_NAME="sde-tranqulity-${{ steps.get-build-number.outputs.build-number }}"
+        if $(git rev-parse "refs/tags/${TAG_NAME}" >/dev/null 2>&1); then
+          echo "Tag ${TAG_NAME} already exists"
+
+          echo "new-tag=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "new-tag=true" >> $GITHUB_OUTPUT
+
+  fetch-data-files:
+    name: Fetch data-files
+    runs-on: windows-latest
+
+    needs: [build-number]
+    if: needs.build-number.outputs.new-tag == 'true'
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Install Python2
+      run: |
+        choco install python2
+        C:\Python27\python.exe -m pip install --upgrade pip
+        C:\Python27\python.exe -m pip install requests
+
+    - name: Download loaders
+      run: |
+        C:\Python27\python.exe scripts/download_loaders.py ${{ needs.build-number.outputs.build-number }}
+
+    - name: Execute loaders
+      run: |
+        C:\Python27\python.exe scripts/execute_loaders.py
+
+    - name: Publish artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: data-files
+        path: |
+          data/build-number.txt
+          data/*.static
+          json
+
+  create-sde:
+    name: Publish datafiles
+    runs-on: ubuntu-latest
+
+    needs:
+    - build-number
+    - fetch-data-files
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Download artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: data-files
+        path: .
+
+    - name: Download latest SDE
+      run: |
+        SDE_VERSION=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.tag_name')
+        URL_SDE=$(curl -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.assets[] | select(.name == "sde-'${SDE_VERSION}'.tar.xz") | .browser_download_url')
+
+        echo "Latest SDE: ${SDE_VERSION}"
+        echo "URL SDE: ${URL_SDE}"
+
+        curl -s -O ${URL_SDE}
+        tar Jxf sde-${SDE_VERSION}.tar.xz
+        mv sde sde-latest
+
+    - name: Download official SDE
+      run: |
+        curl -s -O https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/sde.zip
+        unzip -q sde.zip
+        for i in $(ls sde/fsd/*.yaml); do python scripts/cleanup_yaml.py ${i}; done
+
+        SDE_VERSION=$(date -r sde.zip "+%F" | sed 's/-//g')
+        echo "official-${SDE_VERSION}" > sde/build-number.txt
+        mv sde sde-official
+
+    - name: Create up-to-date SDE
+      run: |
+        python scripts/convert_to_yaml.py
+
+    - name: Create delta
+      id: delta
+      run: |
+        python scripts/create_delta.py sde-latest
+        mv delta delta-latest
+        python scripts/create_delta.py sde-official
+        mv delta delta-official
+
+        if [ "$(ls delta-latest/fsd/*.yaml | wc -l)" -eq 0 ]; then
+          echo "No changes in SDE"
+
+          echo "has-delta=false" >> $GITHUB_OUTPUT
+          exit 0
+        fi
+
+        echo "has-delta=true" >> $GITHUB_OUTPUT
+
+    # In case there is no delta, no need to make a release. But to know we analyzed
+    # this build, we do tag it (we just don't create a release).
+    - name: Tag (no delta)
+      if: steps.delta.outputs.has-delta == 'false'
+      run: |
+        BUILD_NUMBER=$(cat data/build-number.txt)
+        git tag ${BUILD_NUMBER}
+        git push origin ${BUILD_NUMBER}
+
+    # There is a delta. So create tarballs and release.
+    - name: Create tarballs
+      if: steps.delta.outputs.has-delta == 'true'
+      run: |
+        BUILD_NUMBER=$(cat data/build-number.txt)
+        LATEST_BUILD_NUMBER=$(cat sde-latest/build-number.txt)
+        OFFICIAL_BUILD_NUMBER=$(cat sde-official/build-number.txt)
+
+        mkdir -p package/latest package/official
+
+        mv yaml package/latest/sde
+        mv delta-latest package/latest/sde-delta
+        mv delta-official package/official/sde-delta
+
+        (
+          cd package/latest
+          tar Jcf ../../sde-${BUILD_NUMBER}.tar.xz sde
+          tar Jcf ../../sde-delta-${LATEST_BUILD_NUMBER}-${BUILD_NUMBER}.tar.xz sde-delta
+        )
+        (
+          cd package/official
+          tar Jcf ../../sde-delta-${OFFICIAL_BUILD_NUMBER}-${BUILD_NUMBER}.tar.xz sde-delta
+        )
+
+    - name: Create release body
+      if: steps.delta.outputs.has-delta == 'true'
+      run: |
+        BUILD_NUMBER=$(cat data/build-number.txt)
+        LATEST_BUILD_NUMBER=$(cat sde-latest/build-number.txt)
+        OFFICIAL_BUILD_NUMBER=$(cat sde-official/build-number.txt)
+
+        echo "## Delta from ${LATEST_BUILD_NUMBER} to ${BUILD_NUMBER}" >> release-body.txt
+        cat package/latest/sde-delta/files.delta.md >> release-body.txt
+        echo "" >> release-body.txt
+
+        echo "## Delta from ${OFFICIAL_BUILD_NUMBER} to ${BUILD_NUMBER}" >> release-body.txt
+        cat package/official/sde-delta/files.delta.md >> release-body.txt
+        echo "" >> release-body.txt
+
+    - name: Create release
+      if: steps.delta.outputs.has-delta == 'true'
+      uses: softprops/action-gh-release@v1
+      with:
+        files: |
+          sde-*.tar.xz
+        body_path: release-body.txt
+        tag_name: sde-tranqulity-${{ needs.build-number.outputs.build-number }}
+        fail_on_unmatched_files: true

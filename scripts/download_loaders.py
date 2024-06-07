@@ -55,13 +55,15 @@ if len(sys.argv) == 1:
     # Find the latest installer listing.
     latest = session.get("https://binaries.eveonline.com/eveclient_TQ.json").json()
     build = latest["build"]
+    world = "tranquility"
 else:
     build = sys.argv[1]
+    world = sys.argv[2]
 
 print("Downloading files for build " + build + " ...")
 
 with open("data/build-number.txt", "w") as f:
-    f.write("tranquility-" + build)
+    f.write(world + "-" + build)
 
 installer = session.get("https://binaries.eveonline.com/eveonline_" + build + ".txt").text
 

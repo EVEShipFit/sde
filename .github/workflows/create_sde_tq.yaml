@@ -1,4 +1,4 @@
-name: Create SDE
+name: Create SDE (TQ)
 
 on:
   workflow_dispatch:
@@ -44,7 +44,7 @@ jobs:
         echo "Tag name: ${TAG_NAME}"
         echo "Ref name: ${REF_NAME}"
 
-        if [ -n "${REF_NAME}" ]; then
+        if [ -n "${REF_NAME}" ] && [ "${REF_NAME}" != "null" ]; then
           echo "Tag ${TAG_NAME} already exists"
 
           echo "new-tag=false" >> $GITHUB_OUTPUT
@@ -72,7 +72,7 @@ jobs:
 
     - name: Download loaders
       run: |
-        C:\Python27\python.exe scripts/download_loaders.py ${{ needs.build-number.outputs.build-number }}
+        C:\Python27\python.exe scripts/download_loaders.py ${{ needs.build-number.outputs.build-number }} tranquility
 
     - name: Execute loaders
       run: |
@@ -107,7 +107,7 @@ jobs:
 
     - name: Download latest SDE
       run: |
-        SDE_VERSION=$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.tag_name')
+        SDE_VERSION=$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases | jq -r '.[].tag_name' | grep "tranquility" | head -n 1)
         URL_SDE=$(curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -s https://api.github.com/repos/${GITHUB_REPOSITORY}/releases/latest | jq -r '.assets[] | select(.name == "'${SDE_VERSION}'.tar.xz") | .url')
 
         echo "Latest SDE: ${SDE_VERSION}"

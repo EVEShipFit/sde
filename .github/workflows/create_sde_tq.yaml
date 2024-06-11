@@ -115,21 +115,37 @@ jobs:
 
         curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" -L -s ${URL_SDE} -o ${SDE_VERSION}.tar.xz
         tar Jxf ${SDE_VERSION}.tar.xz
+        # Conversion from old (pre 2024-06-11) SDE to new.
+        if [ -e "sde/fsd" ]; then
+          mv sde/fsd/* sde/
+          (
+            cd sde
+            mv categoryIDs.yaml categories.yaml
+            mv groupIDs.yaml groups.yaml
+            mv typeIDs.yaml types.yaml
+          )
+          rm -rf sde/fsd
+        fi
         mv sde sde-latest
 
         rm ${SDE_VERSION}.tar.xz
 
     - name: Download official SDE
       run: |
-        wget -q https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/sde.zip
-        unzip -q sde.zip
-        for i in $(ls sde/fsd/*.yaml); do python scripts/cleanup_yaml.py ${i}; done
+        mkdir sde
+        (
+          cd sde
 
-        SDE_VERSION=$(date -r sde.zip "+%F" | sed 's/-//g')
-        echo "official-${SDE_VERSION}" > sde/build-number.txt
+          wget -q https://eve-static-data-export.s3-eu-west-1.amazonaws.com/tranquility/fsd.zip
+          unzip -q fsd.zip
+
+          SDE_VERSION=$(date -r fsd.zip "+%F" | sed 's/-//g')
+          echo "official-${SDE_VERSION}" > build-number.txt
+
+          rm fsd.zip
+        )
+
         mv sde sde-official
-
-        rm sde.zip
 
     - name: Create up-to-date SDE
       run: |

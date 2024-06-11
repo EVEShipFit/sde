@@ -45,9 +45,6 @@ def convert_value(value, column, options):
             if value == 0 or value == 1:
                 return None
 
-    if not options.get("has-ko", True) and type(value) == dict and "ko" in value:
-        del value["ko"]
-
     return value
 
 
@@ -129,7 +126,7 @@ def main():
 
             yaml_data[json_key] = yaml_value
 
-        with open(f"yaml/fsd/{yaml_filename}.yaml", "w", encoding="utf-8") as f:
+        with open(f"yaml/{yaml_filename}.yaml", "w", encoding="utf-8") as f:
             yaml.dump(yaml_data, f, allow_unicode=True, indent=2, sort_keys=True, width=80, Dumper=yaml.CSafeDumper)
 
 

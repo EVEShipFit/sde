@@ -166,10 +166,8 @@ blueprints:
     blueprintTypeID:
     maxProductionLimit:
 
-categoryIDs:
+categories:
   json: categories.json
-  options:
-    has-ko: False
   columns:
     name:
       json: categoryNameID
@@ -312,10 +310,8 @@ graphicIDs:
     sofLayout:
     sofRaceName:
 
-groupIDs:
+groups:
   json: groups.json
-  options:
-    has-ko: False
   columns:
     anchorable:
       type: bool
@@ -516,10 +512,8 @@ typeDogma:
         isDefault:
           type: bool
 
-typeIDs:
+types:
   json: types.json
-  options:
-    has-ko: False
   columns:
     basePrice:
       condition: if-not-zero

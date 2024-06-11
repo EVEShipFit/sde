@@ -9,7 +9,7 @@ if len(sys.argv) != 2:
     sys.exit(1)
 
 sde_compare_folder = sys.argv[1]
-os.makedirs("delta/fsd", exist_ok=True)
+os.makedirs("delta", exist_ok=True)
 
 with open("yaml/build-number.txt", "r") as f:
     build_number = f.read().strip()
@@ -26,13 +26,13 @@ stats = {
     "files": {},
 }
 
-for filename in glob.glob("yaml/fsd/*.yaml"):
+for filename in glob.glob("yaml/*.yaml"):
     filename = filename.split("/")[-1]
     print(f"Creating delta for {filename} ...")
 
-    with open(f"{sde_compare_folder}/fsd/{filename}", "r") as f:
+    with open(f"{sde_compare_folder}/{filename}", "r") as f:
         left = yaml.load(f, Loader=yaml.CSafeLoader)
-    with open(f"yaml/fsd/{filename}", "r") as f:
+    with open(f"yaml/{filename}", "r") as f:
         right = yaml.load(f, Loader=yaml.CSafeLoader)
 
     keys = set(left.keys()) | set(right.keys())
@@ -47,7 +47,7 @@ for filename in glob.glob("yaml/fsd/*.yaml"):
             # Fix up a bunch to make the diff significant smaller.
 
             # sofFactionName / sofMaterialSetID / masteries / traits is not in the EVE client data, but is in the official SDE.
-            if filename == "typeIDs.yaml":
+            if filename == "types.yaml":
                 if "sofFactionName" in left[key]:
                     del left[key]["sofFactionName"]
                 if "sofMaterialSetID" in left[key]:
@@ -81,10 +81,6 @@ for filename in glob.glob("yaml/fsd/*.yaml"):
             if "descriptionID" in left[key] and left[key]["descriptionID"]["en"] == "":
                 del left[key]["descriptionID"]
 
-            # basePrice in the official SDE isn't always a float.
-            if filename == "typeIDs.yaml" and "basePrice" in left[key]:
-                left[key]["basePrice"] = float(left[key]["basePrice"])
-
             # Compare again, after possibly fixing up the data.
             if left[key] == right[key]:
                 continue
@@ -99,13 +95,13 @@ for filename in glob.glob("yaml/fsd/*.yaml"):
         }
 
         filename = filename.replace(".yaml", ".delta.yaml")
-        with open(f"delta/fsd/{filename}", "w") as f:
+        with open(f"delta/{filename}", "w") as f:
             yaml.dump(delta, f, allow_unicode=True, indent=2, sort_keys=True, width=82, Dumper=yaml.CSafeDumper)
 
 
 summary = ""
 for filename, file_stats in sorted(stats["files"].items()):
-    summary += f"- `fsd/{filename}`: "
+    summary += f"- `{filename}`: "
 
     schange = []
     if file_stats["added"]:

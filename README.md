@@ -98,25 +98,11 @@ python3 scripts/create_delta.py <sde-compare-folder>
 
 This creates the deltas for all YAML files, and stores them in the `delta` folder.
 The `sde-compare-folder` is the older SDE to compare against.
-If this is the official SDE, make sure to clean it up first (see below).
 
 ### Step ??? - Profit
 
 You now have an up-to-date SDE.
 Enjoy.
-
-### Cleanup official SDE
-
-There are a few things with the official SDE, that makes it hard to compare this SDE and the official:
-- Keys are sorted, most of the time. Except once.
-- Indent can be either 4 or 2.
-To make comparing easier, one can run:
-
-```bash
-for i in $(ls sde/fsd/*.yaml); do python3 scripts/cleanup_yaml.py ${i}; done
-```
-
-This will convert the official SDE to a form that is easier to compare against.
 
 ## Releases
 

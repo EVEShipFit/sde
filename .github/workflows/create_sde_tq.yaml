@@ -159,7 +159,7 @@ jobs:
         python scripts/create_delta.py sde-official
         mv delta delta-official
 
-        if [ "$(ls delta-latest/fsd/*.yaml | wc -l)" -eq 0 ]; then
+        if [ "$(ls delta-latest/*.yaml | wc -l)" -eq 0 ]; then
           echo "No changes in SDE"
 
           echo "has-delta=false" >> $GITHUB_OUTPUT

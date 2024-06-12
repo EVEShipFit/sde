@@ -92,7 +92,7 @@ def convert_object(json_value, columns, options):
 
 
 def main():
-    os.makedirs("yaml/fsd", exist_ok=True)
+    os.makedirs("yaml", exist_ok=True)
     shutil.copy("data/build-number.txt", "yaml/build-number.txt")
 
     with open("mapping.yaml") as f:

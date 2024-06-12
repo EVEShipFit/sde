@@ -115,17 +115,6 @@ jobs:
 
         curl -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/octet-stream" -L -s ${URL_SDE} -o ${SDE_VERSION}.tar.xz
         tar Jxf ${SDE_VERSION}.tar.xz
-        # Conversion from old (pre 2024-06-11) SDE to new.
-        if [ -e "sde/fsd" ]; then
-          mv sde/fsd/* sde/
-          (
-            cd sde
-            mv categoryIDs.yaml categories.yaml
-            mv groupIDs.yaml groups.yaml
-            mv typeIDs.yaml types.yaml
-          )
-          rm -rf sde/fsd
-        fi
         mv sde sde-latest
 
         rm ${SDE_VERSION}.tar.xz

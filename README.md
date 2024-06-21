@@ -15,20 +15,15 @@ Second, it is really hard to know what has changed between SDEs.
 Which means the best way to approach the SDE, is to reimport all data into your own application; even if that would be totally wasteful.
 
 Lastly, there are a few weird things with the SDE.
-For example, most files are created with "indent=2", but some with "indent=4".
-And of course, the latter is done on one of the bigger files, making the whole SDE 10% bigger on disk than it has to.
-That for some useless whitespace.
-But also, some files do not export the Korean translation, where others do.
-There are also some inaccuracies with floats, fields that are sometimes there and sometimes not, etc.
+There are some inaccuracies with floats, fields that are sometimes there and sometimes not, etc.
 All small stuff, but it adds up over time.
 
 In result, more than a few 3rd-party developers work around this problem, either by augmenting the SDE with information from ESI (which on its own is incomplete and hard to use) or by using techniques similar to this repository (read: using the EVE Client data-files).
 
-This repository tries to correct that, by making a suggestion to CCP how to deal with the SDE, in a way that is easier to process for 3rd-party tooling.
-In short:
-- This repository fully automated the job of creating an SDE (from the EVE client data-files); so it is always up-to-date.
+This repository is yet-another-fix to the same problem:
+- This repository has fully automated the job of creating an SDE (from the EVE client data-files); so it is always up-to-date.
 - A simple [mapping file](./mapping.yaml) instructs how the conversion should be done, so it is easy to maintain for anyone.
-- It corrects a few of the weirdness the current SDE has, like indent, floating precision, Korean translation, etc.
+- It corrects a few of the weirdness the current SDE has, like floating precision, etc.
 - It publishes the "latest SDE", but also a delta since the last. This is not a "diff", but a list of entries that changed, with their latest content.
   When using a database as backend, it is sufficient to process this delta to make your database up-to-date with the latest SDE.
 

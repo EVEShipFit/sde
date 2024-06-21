@@ -29,6 +29,7 @@ agents:
       json: agent.agentLevel
     locationID:
       json: stationID
+      condition: if-set
 
 agentsInSpace:
   json: agentsinspace.json

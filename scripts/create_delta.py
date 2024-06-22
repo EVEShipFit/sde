@@ -4,6 +4,10 @@ import shutil
 import sys
 import yaml
 
+NOT_IN_OFFICIAL_SDE = [
+    "dbuffCollections.yaml",
+]
+
 if len(sys.argv) != 2:
     print("Usage: python create_delta.py <sde-compare-folder>")
     sys.exit(1)
@@ -29,6 +33,10 @@ stats = {
 for filename in glob.glob("yaml/*.yaml"):
     filename = filename.split("/")[-1]
     print(f"Creating delta for {filename} ...")
+
+    # Don't create a delta for a file that is not expected in the official SDE.
+    if filename in NOT_IN_OFFICIAL_SDE and not os.path.exists(f"{sde_compare_folder}/{filename}"):
+        continue
 
     with open(f"{sde_compare_folder}/{filename}", "r") as f:
         left = yaml.load(f, Loader=yaml.CSafeLoader)

@@ -203,6 +203,30 @@ corporationActivities:
   columns:
     nameID:
 
+dbuffCollections:
+  sqlite: dbuffcollections.static
+  columns:
+    aggregateMode:
+    developerDescription:
+    displayNameID:
+      type: language
+    itemModifiers:
+      columns:
+        dogmaAttributeID:
+    locationGroupModifiers:
+      columns:
+        dogmaAttributeID:
+        groupID:
+    locationModifiers:
+      columns:
+        dogmaAttributeID:
+    locationRequiredSkillModifiers:
+      columns:
+        dogmaAttributeID:
+        skillID:
+    operationName:
+    showOutputValueInUI:
+
 dogmaAttributeCategories:
   json: dogmaattributecategories.json
   columns:
@@ -456,6 +480,7 @@ skinMaterials:
   sqlite: skinmaterials.static
   columns:
     displayNameID:
+      type: language
     materialSetID:
     skinMaterialID:
 

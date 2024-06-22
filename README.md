@@ -27,6 +27,15 @@ This repository is yet-another-fix to the same problem:
 - It publishes the "latest SDE", but also a delta since the last. This is not a "diff", but a list of entries that changed, with their latest content.
   When using a database as backend, it is sufficient to process this delta to make your database up-to-date with the latest SDE.
 
+## Additional data
+
+The official SDE is missing some information crucial for correctly doing things like accurate ship statistics in all situations.
+For example, the "warfare IDs" are nowhere to be found in the SDE.
+This SDE does add those files.
+Currently they are:
+
+- `dbuffCollections.yaml`: contains all the Warfare IDs.
+
 ## Missing data
 
 Not all information that is in the official SDE is actually included in the EVE client data-files.

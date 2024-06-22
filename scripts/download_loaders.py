@@ -33,6 +33,7 @@ LOADER_LIST = [
 ]
 STATIC_LIST = [
     "blueprints",
+    "dbuffcollections",
     "skinLicenses",
     "skinMaterials",
     "skins",

@@ -1,11 +1,25 @@
 import json
+import glob
 import os
+import pickle
 import shutil
 import sqlite3
 import yaml
 
+LOCALIZATION_LIST = {
+    "de": "de",
+    "en-us": "en",
+    "es": "es",
+    "fr": "fr",
+    "it": "it",
+    "ja": "ja",
+    "ko": "ko",
+    "ru": "ru",
+    "zh": "zh",
+}
 
-def convert_value(value, column, options):
+
+def convert_value(value, column, options, strings):
     if type(value) == dict:
         # Allow dicts that are a string in different languages. But all other need column definitions.
         if "en" not in value.keys():
@@ -27,6 +41,14 @@ def convert_value(value, column, options):
     if "type" in column:
         if column["type"] == "bool":
             value = bool(value)
+        if column["type"] == "language":
+            stringID = value
+            value = {}
+
+            for language in strings:
+                if stringID not in strings[language]:
+                    continue
+                value[language] = strings[language][stringID][0]
 
     # This is an estimation, which fixes most rounding issues. Not all.
     # This can simply be explained that the original source is human-written,
@@ -48,7 +70,7 @@ def convert_value(value, column, options):
     return value
 
 
-def convert_object(json_value, columns, options):
+def convert_object(json_value, columns, options, strings):
     yaml_value = {}
     for yaml_name, column in columns.items():
         if column is None:
@@ -67,21 +89,21 @@ def convert_object(json_value, columns, options):
 
         if column.get("type") == "number-dict":
             if "columns" in column:
-                value = {int(k): convert_object(v, column["columns"], options) for k, v in value.items()}
+                value = {int(k): convert_object(v, column["columns"], options, strings) for k, v in value.items()}
             else:
-                value = {int(k): convert_value(v, column, options) for k, v in value.items()}
+                value = {int(k): convert_value(v, column, options, strings) for k, v in value.items()}
         elif type(value) == list:
             yaml_v = []
             for v in value:
                 if "columns" in column:
-                    yaml_v.append(convert_object(v, column["columns"], options))
+                    yaml_v.append(convert_object(v, column["columns"], options, strings))
                 else:
-                    yaml_v.append(convert_value(v, column, options))
+                    yaml_v.append(convert_value(v, column, options, strings))
             value = yaml_v
         elif "columns" in column:
-            value = convert_object(value, column["columns"], options)
+            value = convert_object(value, column["columns"], options, strings)
         else:
-            value = convert_value(value, column, options)
+            value = convert_value(value, column, options, strings)
 
         if value is None:
             continue
@@ -92,6 +114,17 @@ def convert_object(json_value, columns, options):
 
 
 def main():
+    # Load all the localizations.
+    strings = {}
+    for localization in glob.glob("data/localization_fsd_*.pickle"):
+        language = os.path.splitext(os.path.basename(localization))[0].split("_")[-1]
+        if language not in LOCALIZATION_LIST:
+            continue
+
+        print("Loading '" + LOCALIZATION_LIST[language] + "' ...")
+        with open(localization, "rb") as f:
+            strings[LOCALIZATION_LIST[language]] = pickle.load(f)[1]
+
     os.makedirs("yaml", exist_ok=True)
     shutil.copy("data/build-number.txt", "yaml/build-number.txt")
 
@@ -117,7 +150,7 @@ def main():
 
         yaml_data = {}
         for json_key, json_value in json_data.items():
-            yaml_value = convert_object(json_value, yaml_config["columns"], options)
+            yaml_value = convert_object(json_value, yaml_config["columns"], options, strings)
             if yaml_value is None:
                 continue
 

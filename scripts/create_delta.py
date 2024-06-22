@@ -6,6 +6,7 @@ import yaml
 
 NOT_IN_OFFICIAL_SDE = [
     "dbuffCollections.yaml",
+    "dynamicItemAttributes.yaml",
 ]
 
 if len(sys.argv) != 2:

@@ -35,6 +35,7 @@ This SDE does add those files.
 Currently they are:
 
 - `dbuffCollections.yaml`: contains all the Warfare IDs.
+- `dynamicItemAttributes.yaml`: contains the range an attribute can have for dynamic items (Abyssal Modules).
 
 ## Missing data
 

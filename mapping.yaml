@@ -307,6 +307,19 @@ dogmaEffects:
     sfxName:
     trackingSpeedAttributeID:
 
+dynamicItemAttributes:
+  json: dynamicitemattributes.json
+  columns:
+    attributeIDs:
+      type: number-dict
+      columns:
+        min:
+        max:
+    inputOutputMapping:
+      columns:
+        applicableTypes:
+        resultingType:
+
 factions:
   json: factions.json
   columns:

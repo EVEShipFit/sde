@@ -14,6 +14,7 @@ LOADER_LIST = [
     "dogmaAttributeCategories",
     "dogmaAttributes",
     "dogmaEffects",
+    "dynamicItemAttributes",
     "factions",
     "graphicIDs",
     "groups",
@@ -33,7 +34,7 @@ LOADER_LIST = [
 ]
 STATIC_LIST = [
     "blueprints",
-    "dbuffcollections",
+    "dbuffCollections",
     "skinLicenses",
     "skinMaterials",
     "skins",

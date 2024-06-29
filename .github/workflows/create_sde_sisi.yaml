@@ -224,3 +224,4 @@ jobs:
         body_path: release-body.txt
         tag_name: sde-singularity-${{ needs.build-number.outputs.build-number }}
         fail_on_unmatched_files: true
+        prerelease: true
